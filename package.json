@@ -1,0 +1,35 @@
+{
+  "name": "rollup-plugin-import-meta-env",
+  "version": "0.0.0",
+  "description": "Statically inject environment variables from the dotenv file.",
+  "main": "index.js",
+  "scripts": {
+    "test": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linsk1998/rollup-plugin-import-meta-env.git"
+  },
+  "keywords": [
+    "rollup",
+    "dotenv",
+    "import",
+    "meta",
+    "env"
+  ],
+  "author": "linsk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/linsk1998/rollup-plugin-import-meta-env/issues"
+  },
+  "homepage": "https://github.com/linsk1998/rollup-plugin-import-meta-env#readme",
+  "devDependencies": {
+    "rollup": "^2.61.1"
+  },
+  "dependencies": {
+    "@rollup/pluginutils": "^4.1.2",
+    "dotenv": "^10.0.0",
+    "estree-walker": "^1.0.1",
+    "magic-string": "^0.25.5"
+  }
+}
