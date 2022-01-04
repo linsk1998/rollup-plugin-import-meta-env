@@ -4,16 +4,18 @@ const dotenv = require('dotenv');
 const estreeWalker = require('estree-walker');
 const MagicString = require('magic-string');
 const pluginutils = require('@rollup/pluginutils');
+const pick = require('object.pick');
 
 const PREFIX = `\0plugin:import-meta-env`;
 
-function createPlugin(env,options) {
-	if (!env) env = {};
+function createPlugin(defaultEnv, options) {
+	if (!defaultEnv) defaultEnv = {};
 	if (!options) options = {};
 	var { include, exclude, sourcemap, mode } = options
 	var filter = pluginutils.createFilter(include, exclude);
 	var sourceMap = options.sourceMap !== false && sourcemap !== false;
 
+	var env = {};
 	var context = options.context || process.cwd();
 	var basePath = path.resolve(context, "./.env");
 	var envBase = dotenv.config({ path: basePath, debug: process.env.DEBUG }).parsed;
@@ -33,6 +35,13 @@ function createPlugin(env,options) {
 			Object.assign(env, envModeLocal);
 		} catch { }
 	}
+	if (options.filter) {
+		var keys = Object.keys(env);
+		keys = keys.filter(options.filter);
+		env = Object.assign(defaultEnv, pick(env, keys));
+	} else {
+		env = Object.assign(defaultEnv, env);
+	}
 
 	return {
 		name: "plugin-import-meta-env",
@@ -43,9 +52,6 @@ function createPlugin(env,options) {
 		load(id) {
 			if (id == PREFIX) {
 				var keys = Object.keys(env);
-				if (options.filter) {
-					keys = keys.filter(options.filter)
-				}
 				return keys.map(key => `export var ${key}=${JSON.stringify(env[key])};`).join("\n")
 			}
 		},
@@ -65,7 +71,7 @@ function createPlugin(env,options) {
 			}
 			var scope = pluginutils.attachScopes(ast, 'scope');
 			var magicString = new MagicString(code);
-			var scopeName;
+			var scopeNames = new Set();
 			var scopeIndex = 0;
 
 			estreeWalker.walk(ast, {
@@ -84,10 +90,12 @@ function createPlugin(env,options) {
 								if (property.name === "env") {
 									let object = node.object;
 									if (object && object.type === "MetaProperty") {
-										do {
+										var scopeName = `__env_${scopeIndex}`;
+										while (scopeName in scope.declarations) {
 											scopeIndex++;
 											scopeName = `__env_${scopeIndex}`;
-										} while (scopeName in scope.declarations);
+										}
+										scopeNames.add(scopeName);
 										magicString.overwrite(node.start, node.end, scopeName);
 									}
 								}
@@ -101,8 +109,8 @@ function createPlugin(env,options) {
 					}
 				}
 			});
-			if (scopeName) {
-				magicString.prepend(`import * as ${scopeName} from ${JSON.stringify(PREFIX)};`);
+			if (scopeNames.size) {
+				magicString.prepend(Array.from(scopeNames).map(scopeName => `import * as ${scopeName} from ${JSON.stringify(PREFIX)};`).join(""));
 				return {
 					code: magicString.toString(),
 					map: sourceMap ? magicString.generateMap({ hires: true }) : null

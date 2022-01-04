@@ -1,7 +1,7 @@
 {
   "name": "rollup-plugin-import-meta-env",
-  "version": "0.0.0",
-  "description": "Statically inject environment variables from the dotenv file.",
+  "version": "0.0.1",
+  "description": "Inject environment variables from the dotenv file.",
   "main": "index.js",
   "scripts": {
     "test": "rollup -c"
@@ -30,6 +30,8 @@
     "@rollup/pluginutils": "^4.1.2",
     "dotenv": "^10.0.0",
     "estree-walker": "^1.0.1",
-    "magic-string": "^0.25.5"
+    "magic-string": "^0.25.5",
+    "object.omit": "^3.0.0",
+    "object.pick": "^1.3.0"
   }
 }

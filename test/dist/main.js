@@ -1,9 +1,15 @@
-var VITE_SOME_KEY="VITE_SOME_KEY";
+import { V as VITE_SOME_KEY } from './runtime.js';
 
-var __env_1 = {
-	__proto__: null,
-	VITE_SOME_KEY: VITE_SOME_KEY
-};
-
-var env=__env_1;
-console.log(env.VITE_SOME_KEY);
+(function(){
+    var __env_0;
+    console.log(__env_0);
+    console.log(VITE_SOME_KEY);
+})();
+(function(){
+    var __env_1;
+    console.log(__env_1);
+    console.log(VITE_SOME_KEY);
+})();
+{
+    console.log("import.meta.env.PROD");
+}

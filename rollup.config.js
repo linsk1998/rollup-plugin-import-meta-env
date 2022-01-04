@@ -9,11 +9,18 @@ module.exports = {
 		chunkFileNames: "[name].js",
 		entryFileNames: "[name].js",
 		assetFileNames: "[name][extname]",
+		manualChunks(id) {//提取常用公共库
+			id = id.replace(/\\/g, "/");
+			if(!id.startsWith("/") && !(/^[A-Z]{1}:/.test(id))) {
+				return "runtime";
+			}
+			return;
+		}
 	},
 	plugins: [
 		env({
 			MODE:"production",
-			BASE_URL:".",
+			BASE_URL:"",
 			PROD: true,
 			DEV:false
 		},{
@@ -27,3 +34,4 @@ module.exports = {
 		})
 	]
 }
+
