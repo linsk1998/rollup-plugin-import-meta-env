@@ -69,6 +69,16 @@ function createPlugin(defaultEnv, options) {
 			if (!ast) {
 				return null;
 			}
+			
+			var imports = new Set();
+			ast.body.forEach(function (node) {
+				if (node.type === 'ImportDeclaration') {
+					node.specifiers.forEach(function (specifier) {
+						imports.add(specifier.local.name);
+					});
+				}
+			});
+
 			var scope = pluginutils.attachScopes(ast, 'scope');
 			var magicString = new MagicString(code);
 			var scopeNames = new Set();
@@ -91,7 +101,7 @@ function createPlugin(defaultEnv, options) {
 									let object = node.object;
 									if (object && object.type === "MetaProperty") {
 										var scopeName = `__env_${scopeIndex}`;
-										while (scopeName in scope.declarations) {
+										while (imports.has(scopeName) || scope.contains(scopeName)) {
 											scopeIndex++;
 											scopeName = `__env_${scopeIndex}`;
 										}
