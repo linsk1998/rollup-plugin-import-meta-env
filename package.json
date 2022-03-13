@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-import-meta-env",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Inject environment variables from the dotenv file.",
   "main": "index.js",
   "scripts": {
