@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const env = require("./index");
 
 module.exports = {
@@ -19,15 +21,22 @@ module.exports = {
 	},
 	plugins: [
 		env({
+			...process.env,
 			MODE:"production",
 			BASE_URL:"",
 			PROD: true,
 			DEV:false
 		},{
-			mode:"production",
 			filter(key){
 				if(key.startsWith("VITE_")){
 					return true;
+				}
+				switch(key){
+					case 'MODE':
+					case 'BASE_URL':
+					case 'PROD':
+					case 'DEV':
+						return true;
 				}
 				return false;
 			}

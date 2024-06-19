@@ -1,5 +1,4 @@
 const path = require('path');
-const dotenv = require('dotenv');
 
 const estreeWalker = require('estree-walker');
 const MagicString = require('magic-string');
@@ -11,36 +10,17 @@ const PREFIX = `\0plugin:import-meta-env`;
 function createPlugin(defaultEnv, options) {
 	if (!defaultEnv) defaultEnv = {};
 	if (!options) options = {};
-	var { include, exclude, sourcemap, mode } = options
+	var { include, exclude, sourcemap } = options
 	var filter = pluginutils.createFilter(include, exclude);
 	var sourceMap = options.sourceMap !== false && sourcemap !== false;
 
-	var env = {};
-	var context = options.context || process.cwd();
-	var basePath = path.resolve(context, "./.env");
-	var envBase = dotenv.config({ path: basePath, debug: process.env.DEBUG }).parsed;
-	Object.assign(env, envBase);
-	try {
-		var baseLocalPath = basePath + ".local";
-		var envLocal = dotenv.config({ path: baseLocalPath, debug: process.env.DEBUG }).parsed;
-		Object.assign(env, envLocal);
-	} catch { }
-	if (mode) {
-		try {
-			var modePath = basePath + "." + mode;
-			var envMode = dotenv.config({ path: modePath, debug: process.env.DEBUG }).parsed;
-			Object.assign(env, envMode);
-			var modeLocalPath = basePath + "." + mode;
-			var envModeLocal = dotenv.config({ path: modeLocalPath, debug: process.env.DEBUG }).parsed;
-			Object.assign(env, envModeLocal);
-		} catch { }
-	}
+	var env;
 	if (options.filter) {
-		var keys = Object.keys(env);
+		let keys = Object.keys(defaultEnv);
 		keys = keys.filter(options.filter);
-		env = Object.assign(defaultEnv, pick(env, keys));
+		env = pick(defaultEnv, keys);
 	} else {
-		env = Object.assign(defaultEnv, env);
+		env = defaultEnv;
 	}
 
 	return {
@@ -52,7 +32,7 @@ function createPlugin(defaultEnv, options) {
 		load(id) {
 			if (id == PREFIX) {
 				var keys = Object.keys(env);
-				return keys.map(key => `export var ${key}=${JSON.stringify(env[key])};`).join("\n")
+				return keys.map(key => `export var ${key}=${JSON.stringify(env[key])};`).join("\n");
 			}
 		},
 		transform(code, id) {

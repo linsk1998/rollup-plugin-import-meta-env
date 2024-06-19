@@ -1,4 +1,3 @@
 test/*
 .env
-.env.local
-.env.staging
+rollup.config.js

@@ -5,9 +5,14 @@ The plugin exposes env variables on the special import.meta.env object.
 ## Config
 
 ```javascript
+const env = require("rollup-plugin-import-meta-env");
+```
+
+```javascript
 env({
+    ...process.env,
     PROD: true,
-    DEV:false
+    DEV: false
 })
 ```
 
@@ -21,28 +26,6 @@ console.log(import.meta.env.DEV);
 
 ```javascript
 console.log(false);
-```
-
-# .env Files
-
-The plugin uses dotenv to load additional environment variables from the following files in your environment directory:
-
-```
-.env                # loaded in all cases
-.env.local          # loaded in all cases, ignored by git
-.env.[mode]         # only loaded in specified mode
-.env.[mode].local   # only loaded in specified mode, ignored by git
-```
-
-## Modes config
-
-```javascript
-env({
-    PROD: true,
-    DEV:false
-},{
-    mode:"production"
-})
 ```
 
 # Remove unuse variables by tree-shaking.
@@ -96,12 +79,33 @@ env({
     PROD: true,
     DEV:false
 },{
-    mode:"production",
     filter(key){
         if(key.startsWith("VITE_")){
             return true;
         }
         return false;
     }
+})
+```
+
+# Other Options
+
+* include
+* exclude
+* sourcemap
+
+```javascript
+env({
+    PROD: true,
+    DEV:false
+},{
+    filter(key){
+        if(key.startsWith("VITE_")){
+            return true;
+        }
+        return false;
+    },
+    sourcemap: true,
+    exclude: "node_modules/**"
 })
 ```
