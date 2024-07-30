@@ -1,27 +1,14 @@
-const path = require('path');
-
 const estreeWalker = require('estree-walker');
 const MagicString = require('magic-string');
 const pluginutils = require('@rollup/pluginutils');
-const pick = require('object.pick');
 
 const PREFIX = `\0plugin:import-meta-env`;
 
-function createPlugin(defaultEnv, options) {
-	if (!defaultEnv) defaultEnv = {};
+function createPlugin(env, options) {
 	if (!options) options = {};
-	var { include, exclude, sourcemap } = options
-	var filter = pluginutils.createFilter(include, exclude);
+	var { include, exclude, filter, sourcemap } = options
+	filter = filter || pluginutils.createFilter(include, exclude);
 	var sourceMap = options.sourceMap !== false && sourcemap !== false;
-
-	var env;
-	if (options.filter) {
-		let keys = Object.keys(defaultEnv);
-		keys = keys.filter(options.filter);
-		env = pick(defaultEnv, keys);
-	} else {
-		env = defaultEnv;
-	}
 
 	return {
 		name: "plugin-import-meta-env",
@@ -32,7 +19,12 @@ function createPlugin(defaultEnv, options) {
 		load(id) {
 			if (id == PREFIX) {
 				var keys = Object.keys(env);
-				return keys.map(key => `export var ${key}=${JSON.stringify(env[key])};`).join("\n");
+				return keys.map(key => {
+					if (/^[a-zA-Z_$]\w*$/.test(key)) {
+						return `export var ${key}=${JSON.stringify(env[key])};`
+					}
+					return "";
+				}).join("\n");
 			}
 		},
 		transform(code, id) {
@@ -49,7 +41,7 @@ function createPlugin(defaultEnv, options) {
 			if (!ast) {
 				return null;
 			}
-			
+
 			var imports = new Set();
 			ast.body.forEach(function (node) {
 				if (node.type === 'ImportDeclaration') {
