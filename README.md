@@ -10,7 +10,6 @@ const env = require("rollup-plugin-import-meta-env");
 
 ```javascript
 env({
-    ...process.env,
     PROD: true,
     DEV: false
 })
@@ -75,17 +74,14 @@ console.log(env.VITE_SOME_KEY);
 To prevent accidentally leaking env variables to the client, config function to filter exposed variables. Only variables prefixed with VITE_ are exposed by e.g. the following config.
 
 ```javascript
-env({
-    PROD: true,
-    DEV:false
-},{
-    filter(key){
-        if(key.startsWith("VITE_")){
-            return true;
+env(Object.fromEntries(
+    Object.entries(process.env).filter(([key, value]) => {
+        if(!(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key))) {
+            return false;
         }
-        return false;
-    }
-})
+        return key.startsWith("VITE_");
+    })
+))
 ```
 
 # Other Options
@@ -93,19 +89,3 @@ env({
 * include
 * exclude
 * sourcemap
-
-```javascript
-env({
-    PROD: true,
-    DEV:false
-},{
-    filter(key){
-        if(key.startsWith("VITE_")){
-            return true;
-        }
-        return false;
-    },
-    sourcemap: true,
-    exclude: "node_modules/**"
-})
-```

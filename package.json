@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-import-meta-env",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Inject environment variables like vite.",
   "main": "index.js",
   "scripts": {
